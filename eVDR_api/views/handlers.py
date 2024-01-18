@@ -126,6 +126,6 @@ def handle_message(msg, chat_id):
     msg_lower = msg.lower()
 
     if msg_lower.startswith("proposta soluzione"):
-        return f"Il servizio VDR è momentaneamente non disponibile"
+        return messages.evaluate_vdr(msg)
     else:
         return f"Mi hai scritto: {msg}, il tuo ChatID è {chat_id}"
