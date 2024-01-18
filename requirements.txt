@@ -1,3 +1,4 @@
 django
 djangorestframework
+openai
 gunicorn>=20.0

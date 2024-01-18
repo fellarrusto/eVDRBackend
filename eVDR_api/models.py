@@ -19,3 +19,10 @@ class AuthorizedPhoneNumber(models.Model):
 
     def __str__(self):
         return self.phone_number
+    
+class Indizi(models.Model):
+    path = models.TextField()
+    solution = models.TextField()
+
+    def __str__(self):
+        return f"Indizi {self.id}"

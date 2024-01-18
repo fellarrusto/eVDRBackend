@@ -3,7 +3,11 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 import json
 
-from eVDR_api.models import AuthorizedPhoneNumber, Chat
+from eVDR_api.models import AuthorizedPhoneNumber, Chat, Indizi
+
+from ..logic import messages
+
+
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -27,8 +31,13 @@ def indizio(request):
     except Chat.DoesNotExist:
         return JsonResponse({'reply': 'Chat ID not found'}, status=401)
     
-    # Example URL. Replace with your actual logic to generate or fetch the URL
-    indizio_url = "http://www.corsarineri.it/training2023/indizio07.png"
+    # Get the latest Indizi record
+    try:
+        latest_indizio = Indizi.objects.latest('id')  # Assuming 'id' as the field to determine the latest
+        indizio_url = latest_indizio.path
+    except Indizi.DoesNotExist:
+        return JsonResponse({'reply': 'No indizi found'}, status=404)
+
     return JsonResponse({"url": indizio_url}, status=200)
 
 
@@ -58,7 +67,7 @@ def conversation(request):
     # Check if the message is not empty
     if message:
         # Proceed with the conversation
-        return JsonResponse({'reply': f"Mi hai scritto: {message}, il tuo ChatID è {chat_id}"})
+        return JsonResponse({'reply': handle_message(message, chat_id)})
     else:
         # If no message was provided in the request, return an error message
         return JsonResponse({'reply': 'No message received'}, status=400)
@@ -69,7 +78,7 @@ def conversation(request):
 def auth(request):
     if request.method == 'POST':
             data = json.loads(request.body)
-            phone_number = data.get('phone_number')
+            phone_number = clean_phone_number(data.get('phone_number'))
             chat_id = data.get('chat_id')
 
             # Check if chat_id exists in Chat table
@@ -99,3 +108,24 @@ def reset_chat_table(request):
     Chat.objects.all().delete()
 
     return JsonResponse({'status': 'success', 'message': 'Chat table reset to original state'})
+
+
+# Utils
+
+def clean_phone_number(phone_number):
+    # Remove all spaces
+    phone_number = phone_number.replace(" ", "")
+
+    # Check if the phone number starts with '+39' and remove it
+    if phone_number.startswith('+39'):
+        phone_number = phone_number[3:]
+
+    return phone_number
+
+def handle_message(msg, chat_id):
+    msg_lower = msg.lower()
+
+    if msg_lower.startswith("proposta soluzione"):
+        return f"Il servizio VDR è momentaneamente non disponibile"
+    else:
+        return f"Mi hai scritto: {msg}, il tuo ChatID è {chat_id}"
