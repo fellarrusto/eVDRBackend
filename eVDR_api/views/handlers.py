@@ -16,13 +16,14 @@ def conversation(request):
     try:
         data = json.loads(request.body)
         message = data.get('message')
+        chat_id = data.get('chat_id')
     except json.JSONDecodeError:
         return JsonResponse({'reply': 'Invalid JSON'}, status=400)
 
     # Check if the message is not empty
     if message:
         # Simply echo the message back
-        return JsonResponse({'reply': f"Mi hai scritto: {message}"})
+        return JsonResponse({'reply': f"Mi hai scritto: {message}, il tuo ChatID è {chat_id}"})
     else:
         # If no message was provided in the request, return an error message
         return JsonResponse({'reply': 'No message received'}, status=400)
