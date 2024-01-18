@@ -5,7 +5,28 @@ import json
 
 from eVDR_api.models import AuthorizedPhoneNumber, Chat
 
+@csrf_exempt
+@require_http_methods(["POST"])
 def indizio(request):
+    # Parse the incoming JSON data from the request body
+    try:
+        data = json.loads(request.body)
+        chat_id = data.get('chat_id')
+    except json.JSONDecodeError:
+        return JsonResponse({'reply': 'Invalid JSON'}, status=400)
+    
+    # Check if chat_id is provided
+    if chat_id is None:
+        return JsonResponse({'reply': 'Chat ID is required'}, status=400)
+    
+    # Query the Chat model to check authorization
+    try:
+        chat = Chat.objects.get(chat_id=chat_id)
+        if not chat.authorization_flag:
+            return JsonResponse({'reply': 'Unauthorized'}, status=401)
+    except Chat.DoesNotExist:
+        return JsonResponse({'reply': 'Chat ID not found'}, status=401)
+    
     # Example URL. Replace with your actual logic to generate or fetch the URL
     indizio_url = "http://www.corsarineri.it/training2023/indizio07.png"
     return JsonResponse({"url": indizio_url}, status=200)
@@ -32,7 +53,7 @@ def conversation(request):
         if not chat.authorization_flag:
             return JsonResponse({'reply': 'Unauthorized'}, status=401)
     except Chat.DoesNotExist:
-        return JsonResponse({'reply': 'Chat ID not found'}, status=404)
+        return JsonResponse({'reply': 'Chat ID not found'}, status=401)
 
     # Check if the message is not empty
     if message:
