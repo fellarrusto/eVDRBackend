@@ -1,4 +1,6 @@
 from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 import json
 
 def indizio(request):
@@ -6,6 +8,9 @@ def indizio(request):
     indizio_url = "http://www.corsarineri.it/training2023/indizio07.png"
     return JsonResponse({"url": indizio_url}, status=200)
 
+
+@csrf_exempt
+@require_http_methods(["POST"])
 def conversation(request):
     # Parse the incoming JSON data from the request body
     try:
