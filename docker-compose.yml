@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    command: gunicorn eVDRBackend.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/opt/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1  # Set to 0 in production
+      - OPENAI_API_KEY=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
