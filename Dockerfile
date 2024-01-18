@@ -1,5 +1,5 @@
 # Use the official Rust image based on Alpine
-FROM rust:1.64.0-alpine3.16
+FROM rust:1-alpine3.19
 
 # Install Python
 RUN apk add --no-cache python3 py3-pip
