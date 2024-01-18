@@ -4,7 +4,9 @@ WORKDIR /opt/app
 
 COPY requirements.txt .
 
-RUN pip install -r requirements.txt
+RUN apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev libffi-dev openssl-dev cargo \
+    && pip install -r requirements.txt \
+    && apk del .build-deps
 
 COPY . .
 
