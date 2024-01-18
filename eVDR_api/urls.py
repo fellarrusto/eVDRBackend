@@ -5,4 +5,5 @@ from .views import handlers
 urlpatterns = [
     path('status/ready', status.ready, name='ready'),
     path('bot/indizio', handlers.indizio, name='indizio'),
+    path('bot/conversation', handlers.conversation, name='conversation'),
 ]
