@@ -26,3 +26,11 @@ class Indizi(models.Model):
 
     def __str__(self):
         return f"Indizi {self.id}"
+    
+class UserMessage(models.Model):
+    chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
+    message = models.TextField()
+    timestamp = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"Message from Chat {self.chat.chat_id} at {self.timestamp}"

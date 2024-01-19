@@ -3,7 +3,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 import json
 
-from eVDR_api.models import AuthorizedPhoneNumber, Chat, Indizi
+from eVDR_api.models import AuthorizedPhoneNumber, Chat, Indizi, UserMessage
 
 from ..logic import messages
 
@@ -51,6 +51,8 @@ def conversation(request):
         chat_id = data.get('chat_id')
     except json.JSONDecodeError:
         return JsonResponse({'reply': 'Invalid JSON'}, status=400)
+    
+    # Store message
 
     # Check if chat_id is provided
     if chat_id is None:
@@ -66,8 +68,15 @@ def conversation(request):
 
     # Check if the message is not empty
     if message:
-        # Proceed with the conversation
-        return JsonResponse({'reply': handle_message(message, chat_id)})
+        # Save conversation
+        UserMessage.objects.create(chat=chat, message="user:" + message)
+        answer = handle_message(message, chat_id)
+        # Check if answer is not None
+        if answer is not None:
+            UserMessage.objects.create(chat=chat, message="bot:" + answer)
+            return JsonResponse({'reply': answer})
+        else:
+            return JsonResponse({'reply': 'Bot not available'}, status=400)
     else:
         # If no message was provided in the request, return an error message
         return JsonResponse({'reply': 'No message received'}, status=400)
@@ -128,4 +137,4 @@ def handle_message(msg, chat_id):
     if msg_lower.startswith("proposta soluzione"):
         return messages.evaluate_vdr(msg)
     else:
-        return f"Mi hai scritto: {msg}, il tuo ChatID è {chat_id}"
+        return f"Per richiedere un VDR è necessario scrivere un messaggio che comincia con \"Proposta soluzione:\", ecco un esempio:\n\nProposta soluzione:\n\nL'indizio della settimana ha una soluzione e questa soluzione porta a Crapolla."
