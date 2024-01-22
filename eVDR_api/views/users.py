@@ -6,7 +6,7 @@ import json
 
 @require_http_methods(["GET"])
 def chat_ids(request):
-    authenticated_chats = Chat.objects.filter(authorization_flag=True).values_list('chat_id', flat=True)
+    authenticated_chats = Chat.objects.filter(authorization_flag=True).values_list('chat_id', 'phone_number')
     return JsonResponse({'authenticated_chats': list(authenticated_chats)})
 
 
