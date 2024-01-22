@@ -8,7 +8,7 @@ from eVDR_api.models import Indizi
 
 def evaluate_vdr(vdr):
     # Define the path to the system.json file
-    system_file_path = os.path.join(settings.BASE_DIR, 'path', 'to', 'system.json')
+    system_file_path = os.path.join(os.path.dirname(__file__), 'system.json')
 
     # Read the JSON file
     with open(system_file_path, 'r') as file:
