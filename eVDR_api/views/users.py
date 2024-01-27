@@ -1,7 +1,8 @@
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
-from ..models import AuthorizedPhoneNumber, Chat, UserMessage
+from django.core.exceptions import ObjectDoesNotExist
+from ..models import AuthorizedPhoneNumber, Chat, UserMessage, UserStats
 import json
 
 @require_http_methods(["GET"])
@@ -22,6 +23,38 @@ def chat_messages(request):
         return JsonResponse({'messages': list(messages)})
     except Chat.DoesNotExist:
         return JsonResponse({'reply': 'Chat ID not found'}, status=404)
+    
+
+@require_http_methods(["GET"])
+def chat_score(request):
+    chat_id = request.GET.get('chat_id', None)
+    if chat_id is None:
+        return JsonResponse({'reply': 'Chat ID is required'}, status=400)
+
+    try:
+        user_stats = UserStats.objects.get(chat__chat_id=chat_id)
+        score = user_stats.score
+        return JsonResponse({'score': score})
+    except UserStats.DoesNotExist:
+        return JsonResponse({'reply': 'UserStats for the given Chat ID not found'}, status=404)
+    except Chat.DoesNotExist:
+        return JsonResponse({'reply': 'Chat ID not found'}, status=404)
+    
+@require_http_methods(["GET"])
+def all_chats_scores(request):
+    try:
+        # Fetch all UserStats entries and related Chat information, ordered by score in descending order
+        user_stats = UserStats.objects.select_related('chat').order_by('-score').values('chat__chat_id', 'chat__phone_number', 'score')
+
+        # Create a list of dictionaries, each representing a chat with its score
+        chats_scores = [
+            {'chat_id': stat['chat__chat_id'], 'phone_number': stat['chat__phone_number'], 'score': stat['score']}
+            for stat in user_stats
+        ]
+
+        return JsonResponse({'chats_scores': chats_scores})
+    except ObjectDoesNotExist:
+        return JsonResponse({'reply': 'Error retrieving chats and scores'}, status=500)
     
 @csrf_exempt
 @require_http_methods(["POST"])

@@ -1,9 +1,10 @@
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Max
 import json
 
-from eVDR_api.models import AuthorizedPhoneNumber, Chat, Indizi, UserMessage
+from eVDR_api.models import AuthorizedPhoneNumber, Chat, Indizi, UserMessage, UserStats
 
 from ..logic import messages
 
@@ -109,16 +110,6 @@ def auth(request):
 
             return JsonResponse({'success': False})
 
-@csrf_exempt  
-@require_http_methods(["POST"])  # Restrict this view to POST requests only
-def reset_chat_table(request):
-
-    # Delete all records in the Chat table
-    Chat.objects.all().delete()
-
-    return JsonResponse({'status': 'success', 'message': 'Chat table reset to original state'})
-
-
 # Utils
 
 def clean_phone_number(phone_number):
@@ -135,6 +126,46 @@ def handle_message(msg, chat_id):
     msg_lower = msg.lower()
 
     if msg_lower.startswith("proposta soluzione"):
+        res = messages.evaluate_vdr(msg)
+        if(res.lower().startswith("soluzione corretta")):
+            if(update_user_stats(chat_id)):
+                return "Soluzione corretta!"
+            else:
+                return "Soluzione corretta, ma forse questo indizio l'avevi già risolto. In ogni caso il punto ti è già stato assegnato. Grazie....Gombilmendi"
         return messages.evaluate_vdr(msg)
     else:
         return f"Per richiedere un VDR è necessario scrivere un messaggio che comincia con \"Proposta soluzione:\", ecco un esempio:\n\nProposta soluzione:\n\nL'indizio della settimana ha una soluzione e questa soluzione porta a Crapolla."
+    
+
+def update_user_stats(chat_id):
+    # Get the latest Indizi ID
+    latest_indizi_id = Indizi.objects.aggregate(Max('id'))['id__max']
+
+    # Try to retrieve the UserStats object for the given chat_id
+    try:
+        user_stats = UserStats.objects.get(chat__chat_id=chat_id)
+
+        # Check if the latest puzzle solved is different
+        if user_stats.latest_puzzle_solved != latest_indizi_id:
+            user_stats.score += 1
+            user_stats.latest_puzzle_solved = latest_indizi_id
+            user_stats.save()
+            return True  # Score updated
+        else:
+            return False  # Score not updated, puzzle already solved
+
+    except UserStats.DoesNotExist:
+        # Fetch the Chat object
+        try:
+            chat = Chat.objects.get(chat_id=chat_id)
+        except Chat.DoesNotExist:
+            # Handle the case where the Chat object does not exist
+            return {'error': 'Chat object does not exist for this chat_id'}
+
+        # Create a new UserStats object if it doesn't exist
+        user_stats = UserStats.objects.create(
+            chat=chat,
+            score=1,
+            latest_puzzle_solved=latest_indizi_id
+        )
+        return True  # New UserStats created and score initialized

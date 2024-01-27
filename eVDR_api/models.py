@@ -34,3 +34,12 @@ class UserMessage(models.Model):
 
     def __str__(self):
         return f"Message from Chat {self.chat.chat_id} at {self.timestamp}"
+    
+
+class UserStats(models.Model):
+    chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
+    score = models.IntegerField(default=0)
+    latest_puzzle_solved = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"User Stats for Chat {self.chat.chat_id} - Score: {self.score}"
