@@ -43,3 +43,14 @@ class UserStats(models.Model):
 
     def __str__(self):
         return f"User Stats for Chat {self.chat.chat_id} - Score: {self.score}"
+
+class SystemDescription(models.Model):
+    description = models.TextField()
+    last_updated = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"System Description updated on {self.last_updated}"
+
+    def save(self, *args, **kwargs):
+        self.last_updated = timezone.now()
+        super(SystemDescription, self).save(*args, **kwargs)

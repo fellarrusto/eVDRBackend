@@ -15,7 +15,8 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', 'default_openai_key')
+# OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', 'default_openai_key')
+OPENAI_API_KEY = "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"
 
 
 

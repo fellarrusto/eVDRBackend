@@ -132,7 +132,7 @@ def handle_message(msg, chat_id):
                 return "Soluzione corretta!"
             else:
                 return "Soluzione corretta, ma forse questo indizio l'avevi già risolto. In ogni caso il punto ti è già stato assegnato. Grazie....Gombilmendi"
-        return messages.evaluate_vdr(msg)
+        return res
     else:
         return f"Per richiedere un VDR è necessario scrivere un messaggio che comincia con \"Proposta soluzione:\", ecco un esempio:\n\nProposta soluzione:\n\nL'indizio della settimana ha una soluzione e questa soluzione porta a Crapolla."
     

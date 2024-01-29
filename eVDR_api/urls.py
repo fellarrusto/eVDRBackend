@@ -16,4 +16,5 @@ urlpatterns = [
     path('users/all_chats_scores', users.all_chats_scores, name='all_chats_scores'),
     path('users/upload_phone_numbers', users.upload_phone_numbers, name='upload_phone_numbers'),
     path('indizio/create_indizio', indizio.create_indizio, name='create_indizio'),
+    path('indizio/update_system_description', indizio.update_system_description, name='update_system_description'),
 ]

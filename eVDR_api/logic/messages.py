@@ -3,19 +3,17 @@ import json
 from django.conf import settings
 import requests
 
-from eVDR_api.models import Indizi
+from eVDR_api.models import Indizi, SystemDescription
 
 
 def evaluate_vdr(vdr):
-    # Define the path to the system.json file
-    system_file_path = os.path.join(os.path.dirname(__file__), 'system.json')
+    # Recupera l'ultima descrizione del sistema dal database
+    try:
+        system_desc = SystemDescription.objects.latest('last_updated')
+        system_description = system_desc.description
+    except SystemDescription.DoesNotExist:
+        return "Bot non disponibile..."
 
-    # Read the JSON file
-    with open(system_file_path, 'r') as file:
-        data = json.load(file)
-
-    # Extract the system description
-    system_description = data.get("system")
     # Recupera l'ultima entry di Indizi
     last_indizi = Indizi.objects.last()
     if last_indizi:
@@ -49,4 +47,4 @@ def evaluate_vdr(vdr):
         return response.json()['choices'][0]['message']['content']
     except Exception as e:
         print("Si è verificato un errore:", e)
-        return None
+        return "Bot non disponibile..."
