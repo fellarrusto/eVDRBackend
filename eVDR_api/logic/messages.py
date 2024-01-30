@@ -31,7 +31,7 @@ def evaluate_vdr(vdr):
         'Authorization': f'Bearer {settings.OPENAI_API_KEY}'
     }
 
-    print(settings.OPENAI_API_KEY)
+    # print(settings.OPENAI_API_KEY)
 
     data = {
         'model': 'gpt-4',
