@@ -15,4 +15,5 @@ EXPOSE 8000
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-CMD ["bash", "-c", "./start.sh"]
+RUN sed -i -e 's/\r$//' ./start.sh
+CMD ["sh", "-c", "./start.sh"]
