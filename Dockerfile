@@ -5,8 +5,6 @@ WORKDIR /opt/app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-COPY data/db.sqlite3 ./data
-
 COPY start.sh .
 RUN chmod +x start.sh
 
