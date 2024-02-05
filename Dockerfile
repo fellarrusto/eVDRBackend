@@ -15,4 +15,5 @@ EXPOSE 8000
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-CMD ["/opt/app/start.sh"]
+CMD ["ls", "-l"]
+# CMD ["/opt/app/start.sh"]
